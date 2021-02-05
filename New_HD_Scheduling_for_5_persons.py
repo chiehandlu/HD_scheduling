@@ -147,9 +147,6 @@ for a, b, c in real_off_day:
 real_requests = []
 
 # 腎超(2)sono
-    #(3, 2, 2, 2), (3, 2, 9, 2), #(3, 2, 30, 2),
-    #(3, 3, 2, 2), (3, 3, 9, 2), #(3, 3, 30, 2),
-hsu_sono_day = input("Dr徐幾號早上做超音波：")
 if hsu_sono_day == '':
     pass
 else:
