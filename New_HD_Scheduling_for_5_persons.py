@@ -135,7 +135,6 @@ off_day = []
 for a, b, c in real_off_day:
     true_real_off_day = (a, b, c+s-1)
     off_day.append(true_real_off_day)
-print(off_day)
 
 
 # In[8]:
@@ -145,57 +144,64 @@ print(off_day)
 
 # Request: (employee, shift, day, weight)
 # 負的weight表示employee要求要上這班，正的表示要求不要上這班.
+real_requests = []
 
-real_requests = [
-    # worker 3 wants the first Saturday(day5) off.
-    # (3, 2, 5, -4),
-    # worker 4 wants a B shift on the second Thursday(day10).
-    # (4, 2, 10, -9),
-    # worker 0 does not want a B shift on the first Friday(day4).
-    # (0, 2, 4, 3),
-# 腎超(2)
-    #(2, 1, 5, 2), (2, 1, 12, 2), (2, 1, 26, 2),
-    #(2, 3, 5, 2), (2, 3, 12, 2), (2, 3, 26, 2),
+# 腎超(2)sono
     #(3, 2, 2, 2), (3, 2, 9, 2), #(3, 2, 30, 2),
     #(3, 3, 2, 2), (3, 3, 9, 2), #(3, 3, 30, 2),
-# 大武(2)
-### Dr 陳
-    # 整天在大武
-    # (0, 0, 19, -2),
-    # 半天在大武
-    #(0, 2, 7, 2), (0, 3, 7, 2), 
-    #(0, 2, 19, 2), (0, 3, 19, 2),
-    #(0, 2, 26, 2), (0, 3, 26, 2),
-### Dr 謝
-    # 整天在大武
-    (1, 0, 13, -2), 
-    # 半天在大武
-    (1, 2, 18, 2), (1, 3, 18, 2), 
-    #(1, 2, 17, 2), (1, 3, 17, 2), 
-    #(1, 1, 29, 2), (1, 3, 29, 2), 
-### Dr 徐
-    # 整天在大武
-    (2, 0, 16, -2), (2, 0, 17, -2), 
-    # 半天在大武
-    #(2, 2, 3, 2), (2, 3, 3, 2),
-    #(2, 2, 28, 2), (2, 3, 28, 2),
-    #(2, 2, 24, 2), (2, 3, 24, 2),
-### Dr 胡
-    # 整天在大武
-    (3, 0, 27, -2), 
-    # 半天在大武
-    #(3, 1, 4, 2), (3, 3, 4, 2),
-### Dr 杰
-    # 整天在大武
-    (4, 0, 15, -2), 
-    # 半天在大武
-    (4, 2, 25, 2), (4, 3, 25, 2),
-    #(4, 2, 21, 2), (4, 3, 21, 2),
-    # 屏監(2)
+hsu_sono_day = input("Dr徐幾號早上做超音波：")
+if hsu_sono_day == '':
+    pass
+else:
+    hsu_sono_day = list(map(int, hsu_sono_day.split(',')))
+    morning = [1, 3]
+    for m in morning:
+        for d in hsu_sono_day:
+            hsu_sono_day_real = [2, m, d, 2]
+            real_requests.append(hsu_sono_day_real)
+            
+hu_sono_day = input("Dr胡幾號下午做超音波：")
+if hu_sono_day == '':
+    pass
+else:
+    hu_sono_day = list(map(int, hu_sono_day.split(',')))
+    for a in range(2,4):
+        for d in hu_sono_day:
+            hu_sono_day_real = [3, a, d, 2]
+            real_requests.append(hu_sono_day_real) 
+
+# 大武(2)dawu
+for i in range(num_employees):
+    dawu_all_day = input(employees_name[i]+" 幾號\"整天\"在大武(每一天用“,”格開)：")
+    if dawu_all_day == '':
+        pass
+    else:
+        dawu_all_day = list(map(int, dawu_all_day.split(',')))
+        for d in dawu_all_day:
+            dawu_all_day_real = [i, 0, d, -2]
+            real_requests.append(dawu_all_day_real)
     
-    # PD門診(2)
-    
-]
+    dawu_morning = input(employees_name[i]+" 幾號\"早上\"在大武(每一天用“,”格開)：")
+    if dawu_morning == '':
+        pass
+    else:
+        dawu_morning = list(map(int, dawu_morning.split(',')))
+        morning = [1, 3]
+        for m in morning:
+            for d in dawu_morning:
+                dawu_morning_real = [i, m, d, 2]
+                real_requests.append(dawu_morning_real)
+            
+    dawu_afternoon = input(employees_name[i]+" 幾號\"下午\"在大武(每一天用“,”格開)：")
+    if dawu_afternoon == '':
+        pass
+    else:
+        dawu_afternoon = list(map(int, dawu_afternoon.split(',')))
+        for a in range(2,4):
+            for d in dawu_afternoon:
+                dawu_afternoon_real = [i, a, d, 2]
+                real_requests.append(dawu_afternoon_real)
+    print()
 
 requests = []
 for a, b, c, d in real_requests:
