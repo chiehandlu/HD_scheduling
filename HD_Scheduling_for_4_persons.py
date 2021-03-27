@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[29]:
+# In[14]:
 
 
 # Step 1: Import the cp_model
@@ -13,11 +13,10 @@ model = cp_model.CpModel()
 
 # Step 4: Create a database and requests
 num_employees = 4
-employees_name = [
-    'Dr 徐', 'Dr 謝', 'Dr 胡', 'Dr 杰'] 
-num_weeks = 5
-num_days = num_weeks * 7
-
+employees_name = ['Dr 徐', 'Dr 謝', 'Dr 胡', 'Dr 杰'] 
+m = int(input("要輸入幾月班表: "))
+months = [32, 29, 32, 31, 32, 31, 32, 32, 31, 32, 31, 32]
+num_days = months[m-1] 
 # - -> off, M -> Morning, A -> Afternoon, I -> Morning + Afternoon
 shifts = ['-', 'M', 'A', 'C']
 costs = [0, 3, 1, 4]
@@ -30,47 +29,21 @@ all_days = range(num_days)
 all_shifts = range(num_shifts)
 
 
-# In[30]:
+# In[15]:
 
 
-### 輸入上個月最後班表
-
-# Fixed assignment: (employee, shift, day).
-# This fixes the first 2 days of the schedule.
-# 將每個月最後幾天到第一個禮拜之前的舊班表填入 ex. 填入109/8/31號當禮拜一之後再排５週
-fixed_assignments = [
-#     # Day 1
-#     (0, 0, 0), (1, 1, 0), (2, 3, 0), (3, 0, 0), (4, 2, 0),
-#     Day 2
-#     (0, 0, 1), (1, 1, 1), (2, 2, 1), (3, 0, 1), (4, 3, 1), 
-#     Day 3
-#    (0, 0, 2), (1, 2, 2), (2, 1, 2), (3, 0, 2), (4, 3, 2), 
-#     Day 4    
-#    (0, 0, 3), (1, 2, 3), (2, 3, 3), (3, 0, 3), (4, 1, 3), 
-#     Day 5
-#     (0, 2, 4), (1, 0, 4), (2, 3, 4), (3, 1, 4), (4, 0, 4), 
-#     Day 6
-#     (0, 0, 5), (1, 0, 5), (2, 0, 5), (3, 3, 5), (4, 3, 5) 
-]
+### 一號是禮拜幾
+x = int(input("月初1號是禮拜幾（禮拜天是0,禮拜一是1）: "))
+print()
 
 
-# In[31]:
+# In[16]:
 
 
 ### 輸入值班時間
-
 # 值班時間盡量可以排班，像是上面request (employee, shift, day, weight)
 # 盡量要(M or A) & C ＝> 不要 O => 只要修改"值班日期(d)"就好
-real_duty_time = [
-#     # Dr.徐 值班時間
-#     (0, 0, 9, 2), 
-#     # Dr.謝 值班時間
-#     (1, 0, 5, 2), (1, 0, 17, 2), (1, 0, 22, 2), 
-#     # Dr.胡 值班時間
-#     (2, 0, 13, 2), (2, 0, 20, 2), (2, 0, 25, 2),
-#     # Dr.杰 值班時間
-#     (3, 0, 2, 2), (3, 0, 8, 2), (3, 0, 23, 2)
-]
+real_duty_time = []
 
 for i in range(num_employees):
     real_duty = input(employees_name[i]+" 幾號值班(每一天用“,”格開)：")
@@ -81,27 +54,19 @@ for i in range(num_employees):
         for d in real_duty:
             real_duty_time_list = (i, 0, d, 2)
             real_duty_time.append(real_duty_time_list)
+
             
-print(real_duty_time)
-
-
-# In[32]:
-
-
-### 月初距離禮拜一幾天
-s = int(input("月初距離禮拜一幾天: "))
-
 duty_time = []
 for a, b, c, d in real_duty_time:
     # 在c後面 ＋ s 表示 “月初距離禮拜一幾天” 再 - 1 天
     # ex. 109/9/1是禮拜二，所以 + 1 - 1 = 0
-    add_day_of_duty = (a, b, c + s - 1, d)
+    add_day_of_duty = (a, b, c - 1, d)
     duty_time.append(add_day_of_duty)
     
 # 值班隔天早上盡量off -> duty隔天“盡量”不要選'M'
 duty_next_morning = []
 for a, b, c, d in duty_time:
-    nextday_of_duty = (a, 2, c+1, d)
+    nextday_of_duty = (a, 1, c+1, d)
     duty_next_morning.append(nextday_of_duty)
     
 # 值班隔天下午盡量off(寧願早上看，也不要下午看) -> duty隔天“盡量”不要選'A' or 'C'
@@ -111,20 +76,15 @@ for a, b, c, d in duty_time:
     duty_next_afternoon.append(nextday_of_duty_1)
     nextday_of_duty_2 = (a, 3, c+1, d+5)
     duty_next_afternoon.append(nextday_of_duty_2)
+    
+print()
 
 
-# In[33]:
+# In[17]:
 
 
 # 加上休假時間固定設為off，類似上面fixed_assignment (employee, shift, day)用法
-real_off_day = [
-    # 輸入其他休假時間
-    # (3, 0, 21)
-]
-
-
-# In[34]:
-
+real_off_day = []
 
 for i in range(num_employees):
     start_time = input(employees_name[i]+" 從幾號休：")
@@ -137,26 +97,22 @@ for i in range(num_employees):
             off_time = [i, 0, d]
             real_off_day.append(off_time)
             
-print(real_off_day)
+print()
 
 
-# In[35]:
+# In[18]:
 
 
 off_day = []
 for a, b, c in real_off_day:
-    true_real_off_day = (a, b, c+s-1)
+    true_real_off_day = (a, b, c-1)
     off_day.append(true_real_off_day)
 
 
-# In[36]:
+# In[19]:
 
 
 real_requests = []
-
-
-# In[37]:
-
 
 # 腎超(2)sono
 hsu_sono_day = input("Dr徐幾號早上做超音波：")
@@ -180,8 +136,10 @@ else:
             hu_sono_day_real = [2, a, d, 2]
             real_requests.append(hu_sono_day_real)   
 
+print()
 
-# In[40]:
+
+# In[20]:
 
 
 # 大武(2)dawu
@@ -218,83 +176,203 @@ for i in range(num_employees):
     print()
 
 
-# In[41]:
+# In[21]:
+
+
+# IDS 日期
+chieh_IDS_day = input("Dr杰幾號早上去IDS：")
+if chieh_IDS_day == '':
+    pass
+else:
+    chieh_IDS_day = list(map(int, chieh_IDS_day.split(',')))
+    morning = [1, 3]
+    for a in morning:
+        for d in chieh_IDS_day:
+            chieh_IDS_day_real = [3, a, d, 10]
+            real_requests.append(chieh_IDS_day_real)
+            
+print()
+
+
+# In[22]:
 
 
 requests = []
 for a, b, c, d in real_requests:
-    true_requests = (a, b, c+s-1, d)
+    true_requests = (a, b, c-1, d)
     requests.append(true_requests)
-print(requests)
 
 
-# In[42]:
+# In[23]:
 
 
-# 加上OPD時間盡量off，像是上面request (employee, shift, day, weight)
-# 不要(M or A) & C
+# 禮拜一
+monday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 1:
+        monday.append(i)
+        for i in monday:
+            if i == 0:
+                monday.remove(i)        
 
-opd_time = [
-    # Dr.徐 固定禮拜一下午、禮拜四上午OPD
-    (0, 2, 0, 2), (0, 2, 7, 2), (0, 2, 14, 2), (0, 2, 21, 2), (0, 2, 28, 2),
-    (0, 3, 0, 2), (0, 3, 7, 2), (0, 3, 14, 2), (0, 3, 21, 2), (0, 3, 28, 2),
-    (0, 1, 3, 2), (0, 1, 10, 2), (0, 1, 17, 2), (0, 1, 24, 2), (0, 1, 31, 2),
-    (0, 3, 3, 2), (0, 3, 10, 2), (0, 3, 17, 2), (0, 3, 24, 2), (0, 3, 31, 2),
-    # Dr.謝 固定禮拜二下午、禮拜四上午OPD
-    (1, 2, 1, 2), (1, 2, 8, 2), (1, 2, 15, 2), (1, 2, 22, 2), (1, 2, 29, 2),
-    (1, 3, 1, 2), (1, 3, 8, 2), (1, 3, 15, 2), (1, 3, 22, 2), (1, 3, 29, 2),
-    (1, 1, 3, 2), (1, 1, 10, 2), (1, 1, 17, 2), (1, 1, 24, 2), (1, 1, 31, 2),
-    (1, 3, 3, 2), (1, 3, 10, 2), (1, 3, 17, 2), (1, 3, 24, 2), (1, 3, 31, 2),
-    # Dr.謝 固定禮拜一、下午禮拜四上午、禮拜三上午上課
-    #(1, 2, 0, 2), (1, 2, 7, 2), (1, 2, 14, 2), (1, 2, 21, 2), (1, 2, 28, 2),
-    #(1, 3, 0, 2), (1, 3, 7, 2), (1, 3, 14, 2), (1, 3, 21, 2), (1, 3, 28, 2),
-    #(1, 1, 3, 2), (1, 1, 10, 2), (1, 1, 17, 2), (1, 1, 24, 2), (1, 1, 31, 2),
-    #(1, 3, 3, 2), (1, 3, 10, 2), (1, 3, 17, 2), (1, 3, 24, 2), (1, 3, 31, 2),
-    (1, 1, 2, 2), (1, 1, 9, 2), (1, 1, 16, 2), (1, 1, 23, 2), (1, 1, 30, 2),
-    (1, 3, 2, 2), (1, 3, 9, 2), (1, 3, 16, 2), (1, 3, 23, 2), (1, 3, 30, 2),
-
-    # Dr.胡 固定禮拜一上午、禮拜五下午OPD
-    (2, 1, 0, 2), (2, 1, 7, 2), (2, 1, 14, 2), (2, 1, 21, 2), (2, 1, 28, 2),
-    (2, 3, 0, 2), (2, 3, 7, 2), (2, 3, 14, 2), (2, 3, 21, 2), (2, 3, 28, 2),
-    (2, 2, 4, 2), (2, 2, 11, 2), (2, 2, 18, 2), (2, 2, 25, 2), (2, 2, 32, 2),
-    (2, 3, 4, 2), (2, 3, 11, 2), (2, 3, 18, 2), (2, 3, 25, 2), (2, 3, 32, 2),
-    # Dr.杰 固定禮拜二上午、禮拜三下午OPD、禮拜三上午IDS
-    (3, 1, 1, 2), (3, 1, 8, 2), (3, 1, 15, 2), (3, 1, 22, 2), (3, 1, 29, 2),
-    (3, 3, 1, 2), (3, 3, 8, 2), (3, 3, 15, 2), (3, 3, 22, 2), (3, 3, 29, 2),
-    (3, 1, 2, 5), (3, 1, 9, 5), (3, 1, 16, 5), (3, 1, 23, 5), (3, 1, 30, 5),
-    (3, 2, 2, 2), (3, 2, 9, 2), (3, 2, 16, 2), (3, 2, 23, 2), (3, 2, 30, 2), 
-    (3, 3, 2, 5), (3, 3, 9, 5), (3, 3, 16, 5), (3, 3, 23, 5), (3, 3, 30, 5), 
-]
-
-# 加上禮拜天時間固定設為off，類似上面fixed_assignment (employee, shift, day)用法
-sunday = [
-    (0, 0, 6), (0, 0, 13), (0, 0, 20), (0, 0, 27), (0, 0, 34),  # Dr.徐 固定禮拜天上午Off
-    (1, 0, 6), (1, 0, 13), (1, 0, 20), (1, 0, 27), (1, 0, 34),  # Dr.謝 固定禮拜天上午Off
-    (2, 0, 6), (2, 0, 13), (2, 0, 20), (2, 0, 27), (2, 0, 34),  # Dr.胡 固定禮拜天上午Off
-    (3, 0, 6), (3, 0, 13), (3, 0, 20), (3, 0, 27), (3, 0, 34),  # Dr.杰 固定禮拜天上午Off
-]
-
-
-# In[43]:
-
-
-# 解釋報告，類似上面fixed_assignment (employee, shift, day)用法
-real_explain_day = [
-    # 輸入解釋報告時間
-    (0, 1, 22), (0, 1, 23), 
-    (1, 2, 22), 
-    (2, 3, 23), 
-    (3, 3, 22), (3, 2, 23), 
-]
-
-explain_day = []
-for a, b, c in real_explain_day:
-    true_explain_day = (a, b, c+s-1)
-    explain_day.append(true_explain_day)
-print(explain_day)
+# 禮拜二
+tuesday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 2:
+        tuesday.append(i)
+        for i in tuesday:
+            if i == 0:
+                tuesday.remove(i)
+# 禮拜三
+wednesday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 3:
+        wednesday.append(i)
+        for i in wednesday:
+            if i == 0:
+                wednesday.remove(i)
+# 禮拜四
+thursday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 4:
+        thursday.append(i)
+        for i in thursday:
+            if i == 0:
+                thursday.remove(i)
+# 禮拜五
+friday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 5:
+        friday.append(i)
+        for i in friday:
+            if i == 0:
+                friday.remove(i)
+# 禮拜六
+saturday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 6:
+        saturday.append(i)
+        for i in saturday:
+            if i == 0:
+                saturday.remove(i)
+        
+week = [monday, tuesday, wednesday, thursday, friday, saturday]
 
 
-# In[44]:
+# In[24]:
+
+
+# 禮拜天時間固定設為off，類似上面fixed_assignment (employee, shift, day)用法
+fixed_assignments = []
+true_sunday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 == 0:
+        true_sunday.append(i)
+        for i in true_sunday:
+            if i == 0:
+                true_sunday.remove(i)
+        
+for i in range(num_employees):
+    for j in true_sunday:
+            sunday = [i, 0, j-1]
+            fixed_assignments.append(sunday)
+
+
+# In[25]:
+
+
+non_sunday = []
+for i in range(num_days):
+    if ((i%7) + x -1)% 7 != 0:
+        non_sunday.append(i)
+        for i in non_sunday:
+            if i == 0:
+                non_sunday.remove(i)            
+
+
+# In[27]:
+
+
+# 加上OPD時間盡量off，像是上面request (employee, shift, day, weight) 不要(M or A) & C 
+# 早上OPD的人, M & C 盡量不要排
+# 徐, 謝, 胡, 杰 禮拜幾早上OPD
+morning_in_week = [3, 3, 0, 1]
+morning = [1, 3]
+real_opd_requests = []
+for i in range(num_employees):
+    real_OPD_day = week[morning_in_week[i]]
+    for k in morning:
+        for j in real_OPD_day:
+            opd_time = (i, k, j, 2)
+            real_opd_requests.append(opd_time)
+
+# 下午OPD的人, A & C 盡量不要排
+# 徐, 謝, 胡, 杰 禮拜幾下午OPD            
+afternoon_in_week = [0, 1, 4, 2]
+afternoon = [2, 3]
+for i in range(num_employees):
+    real_OPD_day = week[afternoon_in_week[i]]
+    for j in real_OPD_day:
+        for k in afternoon:
+            opd_time = (i, k, j, 2)
+            real_opd_requests.append(opd_time)
+
+ # Dr謝 禮拜幾早上上課不要排，M & C 盡量不要排，像是上面request (employee, shift, day, weight)
+y = input("Dr謝禮拜幾固定不排: ")
+z = input("禮拜"+ y + "早上or下午不排(早上->1, 下午->2): ")
+
+if y == '':
+    pass
+else:
+    if z == '':
+        pass
+    elif int(z) == 1:
+        other_requests = week[int(y)-1]
+        for k in morning:
+            for j in other_requests:
+                other_time = (1, k, j, 10)
+                real_opd_requests.append(other_time)
+    elif int(z) == 2:
+        other_requests = week[int(y)-1]
+        for k in afternoon:
+            for j in other_requests:
+                other_time = (1, k, j, 10)
+                real_opd_requests.append(other_time)
+
+
+opd_time = []
+for a, b, c, d in real_opd_requests:
+    # 在c後面 ＋ s 表示 “月初距離禮拜一幾天” 再 - 1 天
+    # ex. 109/9/1是禮拜二，所以 + 1 - 1 = 0
+    add_day_of_opd = (a, b, c - 1, d)
+    opd_time.append(add_day_of_opd)
+    
+print()
+
+
+# In[28]:
+
+
+# 解釋報告，先輸入哪兩天解釋報告，類似上面fixed_assignment (employee, shift, day)用法
+explain_day = input("哪兩天解釋報告：")
+if explain_day == '':
+    pass
+else:
+    explain_day = list(map(int, explain_day.split(',')))
+    for e in explain_day:
+        print()
+        for i in range(num_employees):
+            explain_shift = input(employees_name[i]+" "+str(e)+" 號上什麼班'off->0', 'M->1', 'A->2', 'C->3'：")
+            if explain_shift == '':
+                pass
+            else:
+                real_explain_day = [i, int(explain_shift), e-1]
+                fixed_assignments.append(real_explain_day) 
+                
+print()
+
+
+# In[29]:
 
 
 # Step 5: Create the variables
@@ -311,7 +389,7 @@ obj_bool_opd_vars = []
 obj_bool_opd_coeffs = []
 
 
-# In[45]:
+# In[30]:
 
 
 # Step 6: Define the constraints
@@ -320,37 +398,25 @@ for e in range(num_employees):
     for d in range(num_days):
         model.Add(sum(work[e, s, d] for s in range(num_shifts)) == 1)
         
-# 2) 除了禮拜天，每天每個人的shifts*costs加起來分數要等於8 (O = 0, M = 3, A = 1, C = 4)
-for w in range(num_weeks):
-    for d in range(6):
-        works = [work[e, s, w * 7 + d] * costs[s] for s in range(1, num_shifts) for e in range(num_employees)] 
-        model.Add(sum(works) == 8)
+# 2) 除了禮拜天，每天每個人的shifts*costs加起來分數要等於8 (O = 0, M = 3, A = 1, C = 4)        
+for i in non_sunday:
+    works = [work[e, s, i-1] * costs[s] for s in range(1, num_shifts) for e in range(num_employees)] 
+    model.Add(sum(works) == 8)
         
 # 3) 除了禮拜天，每天的 “M” or “A” 數目要小於3個
-for w in range(num_weeks):
-    for d in range(6):
-        for s in range(1, num_shifts):
-            model.Add(sum(work[e, s, w * 7 + d] for e in range(num_employees)) <= 2)
+for i in non_sunday:
+    for s in range(1, num_shifts):
+        model.Add(sum(work[e, s, i-1] for e in range(num_employees)) <= 2)
             
 # 4) 每個禮拜六要是兩個C
-Day_Saturday = [5, 12, 19, 26, 33]
-
-for d in Day_Saturday:
-    model.Add(sum(work[e, 3, d] for e in range(num_employees)) == 2)
+for d in saturday:
+    model.Add(sum(work[e, 3, d-1] for e in range(num_employees)) == 2)
     
 # 5) Fixed assignments. 讓e,s,d跟Fixed assignments內tuple一樣的，都為1
-# 這樣就會照指定的前兩天做
+# 這樣就會讓所有有用到Fixed assignments指定的做
 for e, s, d in fixed_assignments:
     model.Add(work[e, s, d] == 1)
 
-# 5) 解釋報告，讓e,s,d跟Fixed assignments內tuple一樣的，都為1
-# 這樣就會照指定的前兩天做
-for e, s, d in explain_day:
-    model.Add(work[e, s, d] == 1)
-    
-# 6) 禮拜天每個人都off
-for e, s, d in sunday:
-    model.Add(work[e, s, d] == 1)
     
 # 7) 值班時間盡量要上班、值班隔天盡量不要上班
 for e, s, d, w in duty_time:
@@ -383,21 +449,21 @@ for e, s, d, w in opd_time:
     obj_bool_opd_coeffs.append(w)
     
 # 11) 顯示每個人每個月最多上幾班，最少上幾班
-min_shifts_per_employee = ((num_weeks * 6 * 4) // num_employees) - 3
+min_shifts_per_employee = ((len(non_sunday) * 4) // num_employees) - 4
 # 每天有4班，一週有7天，，但禮拜天固定不用上，所以總班數=num_weeks * 6 * 4
-max_shifts_per_employee = min_shifts_per_employee + 3
+max_shifts_per_employee = min_shifts_per_employee + 4
 
 for e in range(num_employees):
     num_shifts_per_employee = 0
-    for d in range(num_weeks * 7):
-        for s in range(1, num_shifts):
-            num_shifts_per_employee += work[e, s, d] * work_time[s]
+    for d in non_sunday:
+        for h in range(1, num_shifts):
+            num_shifts_per_employee += work[e, h, d] * work_time[h]
             
     model.Add(num_shifts_per_employee <= max_shifts_per_employee)
     model.Add(num_shifts_per_employee >= min_shifts_per_employee)
 
 
-# In[46]:
+# In[31]:
 
 
 # Step 7: Define the objective
@@ -406,7 +472,7 @@ model.Minimize(
     + sum(obj_bool_opd_vars[i] * obj_bool_opd_coeffs[i] for i in range(len(obj_bool_opd_vars))))
 
 
-# In[47]:
+# In[32]:
 
 
 # Step 8: Create a solver and invoke solve
@@ -416,25 +482,38 @@ solution_printer = cp_model.ObjectiveSolutionPrinter()
 status = solver.SolveWithSolutionCallback(model, solution_printer)
 
 
-# In[48]:
+# In[33]:
 
 
 # Step 9: Call a printer and display the results
 if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
     print('worker 0(徐), worker 1(謝), worker 2(胡), worker 3(杰)')
     print()
+    different_header = [['S ', 'M ', 'T ', 'W ', 'T ', 'F ', 'S '], 
+                        ['M ', 'T ', 'W ', 'T ', 'F ', 'S ', 'S '], 
+                        ['T ', 'W ', 'T ', 'F ', 'S ', 'S ', 'M '], 
+                        ['W ', 'T ', 'F ', 'S ', 'S ', 'M ', 'T '], 
+                        ['T ', 'F ', 'S ', 'S ', 'M ', 'T ', 'W '],
+                        ['F ', 'S ', 'S ', 'M ', 'T ', 'W ', 'T '], 
+                        ['S ', 'S ', 'M ', 'T ', 'W ', 'T ', 'F ']]
     header = '          '
-    for w in range(num_weeks):
-        header += 'M T W T F S S '
+    for i in range(num_days-1):
+        if i <=6:
+            header += different_header[x][i]
+        else:
+            j = i % 7
+            header += different_header[x][j]
     print(header)
+    
     for e in range(num_employees):
         schedule = ''
-        for d in range(num_days):
+        for d in range(num_days-1):
             for s in range(num_shifts):
                 if solver.BooleanValue(work[e, s, d]):
                     schedule += shifts[s] + ' '
         print('worker %i: %s' % (e, schedule))
     print()
+    
     for e in range(num_employees):
         assigned = 0
         for d in range(num_days):
@@ -445,37 +524,7 @@ if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             elif solver.Value(work[(e, 3, d)]) == 1:
                 assigned += 2
         print('worker %i assigned to %s works' % (e, assigned))
-        
-#     print()
-#     print('Penalties:')
-#     for i, var in enumerate(obj_bool_vars):
-#         if solver.BooleanValue(var):
-#             penalty = obj_bool_coeffs[i]
-#             if penalty > 0:
-#                 print('  %s violated, penalty=%i' % (var.Name(), penalty))
-#             else:
-#                 print('  %s fulfilled, gain=%i' % (var.Name(), -penalty))
-
-#     for i, var in enumerate(obj_int_vars):
-#         if solver.Value(var) > 0:
-#             print('  %s violated by %i, linear penalty=%i' %
-#                   (var.Name(), solver.Value(var), obj_int_coeffs[i]))
-            
             
 print()
 print(solver.ResponseStats())
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# 
