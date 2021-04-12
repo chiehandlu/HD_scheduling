@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[14]:
-
-
 # Step 1: Import the cp_model
 from __future__ import print_function
 from ortools.sat.python import cp_model
@@ -29,15 +26,9 @@ all_days = range(num_days)
 all_shifts = range(num_shifts)
 
 
-# In[15]:
-
-
 ### 一號是禮拜幾
 x = int(input("月初1號是禮拜幾（禮拜天是0,禮拜一是1）: "))
 print()
-
-
-# In[16]:
 
 
 ### 輸入值班時間
@@ -80,9 +71,6 @@ for a, b, c, d in duty_time:
 print()
 
 
-# In[17]:
-
-
 # 加上休假時間固定設為off，類似上面fixed_assignment (employee, shift, day)用法
 real_off_day = []
 
@@ -100,16 +88,12 @@ for i in range(num_employees):
 print()
 
 
-# In[18]:
-
 
 off_day = []
 for a, b, c in real_off_day:
     true_real_off_day = (a, b, c-1)
     off_day.append(true_real_off_day)
 
-
-# In[19]:
 
 
 real_requests = []
@@ -137,9 +121,6 @@ else:
             real_requests.append(hu_sono_day_real)   
 
 print()
-
-
-# In[20]:
 
 
 # 大武(2)dawu
@@ -176,9 +157,6 @@ for i in range(num_employees):
     print()
 
 
-# In[21]:
-
-
 # IDS 日期
 chieh_IDS_day = input("Dr杰幾號早上去IDS：")
 if chieh_IDS_day == '':
@@ -194,16 +172,11 @@ else:
 print()
 
 
-# In[22]:
-
-
 requests = []
 for a, b, c, d in real_requests:
     true_requests = (a, b, c-1, d)
     requests.append(true_requests)
 
-
-# In[23]:
 
 
 # 禮拜一
@@ -259,8 +232,6 @@ for i in range(num_days):
 week = [monday, tuesday, wednesday, thursday, friday, saturday]
 
 
-# In[24]:
-
 
 # 禮拜天時間固定設為off，類似上面fixed_assignment (employee, shift, day)用法
 fixed_assignments = []
@@ -278,8 +249,6 @@ for i in range(num_employees):
             fixed_assignments.append(sunday)
 
 
-# In[25]:
-
 
 non_sunday = []
 for i in range(num_days):
@@ -289,8 +258,6 @@ for i in range(num_days):
             if i == 0:
                 non_sunday.remove(i)            
 
-
-# In[27]:
 
 
 # 加上OPD時間盡量off，像是上面request (employee, shift, day, weight) 不要(M or A) & C 
@@ -350,8 +317,6 @@ for a, b, c, d in real_opd_requests:
 print()
 
 
-# In[28]:
-
 
 # 解釋報告，先輸入哪兩天解釋報告，類似上面fixed_assignment (employee, shift, day)用法
 explain_day = input("哪兩天解釋報告：")
@@ -372,8 +337,6 @@ else:
 print()
 
 
-# In[29]:
-
 
 # Step 5: Create the variables
 work = {}
@@ -388,8 +351,6 @@ obj_bool_coeffs = []
 obj_bool_opd_vars = []
 obj_bool_opd_coeffs = []
 
-
-# In[30]:
 
 
 # Step 6: Define the constraints
@@ -463,16 +424,12 @@ for e in range(num_employees):
     model.Add(num_shifts_per_employee >= min_shifts_per_employee)
 
 
-# In[31]:
-
 
 # Step 7: Define the objective
 model.Minimize(
     sum(obj_bool_vars[i] * obj_bool_coeffs[i] for i in range(len(obj_bool_vars)))
     + sum(obj_bool_opd_vars[i] * obj_bool_opd_coeffs[i] for i in range(len(obj_bool_opd_vars))))
 
-
-# In[32]:
 
 
 # Step 8: Create a solver and invoke solve
@@ -481,8 +438,6 @@ solver = cp_model.CpSolver()
 solution_printer = cp_model.ObjectiveSolutionPrinter()
 status = solver.SolveWithSolutionCallback(model, solution_printer)
 
-
-# In[33]:
 
 
 # Step 9: Call a printer and display the results
